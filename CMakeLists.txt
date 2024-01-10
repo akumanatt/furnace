@@ -700,6 +700,7 @@ src/engine/platform/pv1000.cpp
 src/engine/platform/k053260.cpp
 src/engine/platform/ted.cpp
 src/engine/platform/c140.cpp
+src/engine/platform/gbadma.cpp
 src/engine/platform/pcmdac.cpp
 src/engine/platform/dummy.cpp
 

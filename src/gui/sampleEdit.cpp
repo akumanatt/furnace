@@ -376,6 +376,20 @@ void FurnaceGUI::drawSampleEdit() {
             if (sample->loop) {
               SAMPLE_WARN(warnLoop,"MSM6295: samples can't loop");
             }
+            break;
+          case DIV_SYSTEM_GBA_DMA:
+            if (sample->loop) {
+              if (sample->loopStart&3) {
+                SAMPLE_WARN(warnLoopStart,"GBA DMA: loop start must be a multiple of 4");
+              }
+              if ((sample->loopEnd-sample->loopStart)&15) {
+                SAMPLE_WARN(warnLoopEnd,"GBA DMA: loop length must be a multiple of 16");
+              }
+            }
+            if (sample->samples&15) {
+              SAMPLE_WARN(warnLength,"GBA DMA: sample length will be padded to multiple of 16");
+            }
+            break;
           default:
             break;
         }
