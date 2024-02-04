@@ -379,6 +379,33 @@ void FurnaceGUI::drawSampleEdit() {
             if (sample->samples>129024) {
               SAMPLE_WARN(warnLength,"MSM6295: maximum bankswitched sample length is 129024");
             }
+            break;
+          case DIV_SYSTEM_KURUMITSU:
+            if (sample->loop) {
+              if (sample->loopStart&31) {
+                int tryWith=(sample->loopStart+8)&(~31);
+                if (tryWith>(int)sample->samples) tryWith-=32;
+                String alignHint=fmt::sprintf("Kurumitsu: loop start must be a multiple of 32 (try with %d)",tryWith);
+                SAMPLE_WARN(warnLoopStart,alignHint);
+              }
+              if (sample->loopEnd&31) {
+                int tryWith=(sample->loopEnd+8)&(~31);
+                if (tryWith>(int)sample->samples) tryWith-=32;
+                String alignHint=fmt::sprintf("Kurumitsu: loop end must be a multiple of 32 (try with %d)",tryWith);
+                SAMPLE_WARN(warnLoopEnd,alignHint);
+              }
+            }
+            if (sample->samples&31) {
+              SAMPLE_WARN(warnLength,"Kurumitsu: sample length will be padded to multiple of 32");
+            }
+            if (dispatch!=NULL) {
+              if (e->isPreviewingSample()) {
+                if ((int)e->getSamplePreviewRate()>dispatch->rate) {
+                  SAMPLE_WARN(warnRate,"Kurumitsu: sample rate is too high for table advance counter, it will be stretched");
+                }
+              }
+            }
+            break;
           default:
             break;
         }
@@ -439,6 +466,13 @@ void FurnaceGUI::drawSampleEdit() {
         pushWarningColor(!warnLoop.empty());
         String loopCheckboxName=(doLoop && (sample->loopEnd-sample->loopStart)>0)?fmt::sprintf("Loop (length: %d)##Loop",sample->loopEnd-sample->loopStart):String("Loop");
         if (ImGui::Checkbox(loopCheckboxName.c_str(),&doLoop)) { MARK_MODIFIED
+          bool isThereKurumitsu=false;
+          for (int i=0; i<e->song.systemLen; i++) {
+            if (e->song.system[i]==DIV_SYSTEM_KURUMITSU) {
+              isThereKurumitsu=true;
+              break;
+            }
+          }
           if (doLoop) {
             sample->loop=true;
             if (sample->loopStart<0) {
@@ -454,7 +488,7 @@ void FurnaceGUI::drawSampleEdit() {
             sample->loopEnd=sample->samples;*/
           }
           updateSampleTex=true;
-          if (e->getSampleFormatMask()&(1U<<DIV_SAMPLE_DEPTH_BRR)) {
+          if ((e->getSampleFormatMask()&(1U<<DIV_SAMPLE_DEPTH_BRR)) || isThereKurumitsu) {
             e->renderSamplesP(curSample);
           }
         }

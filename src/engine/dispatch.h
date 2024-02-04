@@ -257,6 +257,11 @@ enum DivDispatchCmds {
   DIV_CMD_DAVE_SWAP_COUNTERS,
   DIV_CMD_DAVE_LOW_PASS,
   DIV_CMD_DAVE_CLOCK_DIV,
+  
+  DIV_CMD_KURUMITSU_MOD,
+  DIV_CMD_KURUMITSU_ADV_LOW,
+  DIV_CMD_KURUMITSU_ADV_HIGH,
+  DIV_CMD_KURUMITSU_ADV_RATIO,
 
   DIV_CMD_MAX
 };
@@ -391,6 +396,9 @@ struct DivChannelPair {
   DivChannelPair(const char* l, signed char p):
     label(l),
     pairs{p,-1,-1,-1,-1,-1,-1,-1} {}
+  DivChannelPair(const char* l, signed char p0, signed char p1):
+    label(l),
+    pairs{p0,p1,-1,-1,-1,-1,-1,-1} {}
   DivChannelPair():
     label(NULL),
     pairs{-1,-1,-1,-1,-1,-1,-1,-1} {}

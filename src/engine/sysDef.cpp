@@ -2030,6 +2030,24 @@ void DivEngine::registerSystems() {
     {DIV_INS_STD, DIV_INS_STD, DIV_INS_STD, DIV_INS_STD, DIV_INS_STD, DIV_INS_STD, DIV_INS_STD, DIV_INS_STD}
   );
 
+  sysDefs[DIV_SYSTEM_KURUMITSU]=new DivSysDef(
+    "Kurumitsu", NULL, 0xfe, 0, 16, false, true, 0, false, (1U<<DIV_SAMPLE_DEPTH_8BIT), 32, 256,
+    "Natt's fantasy sound chip. it's like ESFM, PCE and SCC combined together and also has sample playback with time stretching",
+    {"Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Channel 6", "Channel 7", "Channel 8", "Channel 9", "Channel 10", "Channel 11", "Channel 12", "Channel 13", "Channel 14", "Channel 15", "Channel 16"},
+    {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"},
+    {DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE, DIV_CH_WAVE},
+    {DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU, DIV_INS_KURUMITSU},
+    {},
+    {
+      {0x10, {DIV_CMD_WAVE, "10xx: Set waveform (0 to FF)"}},
+      {0x11, {DIV_CMD_STD_NOISE_MODE, "11xx: Toggle noise mode (0: wave, 1: noise)"}},
+      {0x12, {DIV_CMD_KURUMITSU_MOD, "12xy: Set modulation input (x: last 2 channels; y: last channel; bit 3: phase/volume mod; bit 0-2: amount)"}},
+      {0x13, {DIV_CMD_KURUMITSU_ADV_LOW, "13xx: Set sample advance frequency low byte"}},
+      {0x14, {DIV_CMD_KURUMITSU_ADV_HIGH, "14xx: Set sample advance frequency high byte"}},
+      {0x15, {DIV_CMD_KURUMITSU_ADV_RATIO, "15xy: Set sample advance ratio (x: numerator; y: denominator)"}}
+    }
+  );
+
   for (int i=0; i<DIV_MAX_CHIP_DEFS; i++) {
     if (sysDefs[i]==NULL) continue;
     if (sysDefs[i]->id!=0) {

@@ -2768,6 +2768,11 @@ void FurnaceGUI::initSystemPresets() {
       CH(DIV_SYSTEM_X1_010, 1.0f, 0, "")
     }
   );
+  ENTRY(
+    "Kurumitsu", {
+      CH(DIV_SYSTEM_KURUMITSU, 1.0f, 0, "")
+    }
+  );
   CATEGORY_END;
 
   CATEGORY_BEGIN("Specialized","chips/systems with unique sound synthesis methods.");

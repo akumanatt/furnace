@@ -2502,7 +2502,8 @@ void FurnaceGUI::insTabSample(DivInstrument* ins) {
         ins->type==DIV_INS_AY ||
         ins->type==DIV_INS_AY8930 ||
         ins->type==DIV_INS_VRC6 ||
-        ins->type==DIV_INS_SU) {
+        ins->type==DIV_INS_SU ||
+        ins->type==DIV_INS_KURUMITSU) {
       P(ImGui::Checkbox("Use sample",&ins->amiga.useSample));
       if (ins->type==DIV_INS_X1_010) {
         if (ImGui::InputInt("Sample bank slot##BANKSLOT",&ins->x1_010.bankSlot,1,4)) { PARAMETER
@@ -6468,7 +6469,8 @@ void FurnaceGUI::drawInsEdit() {
             ins->type==DIV_INS_SCC ||
             ins->type==DIV_INS_SNES ||
             ins->type==DIV_INS_NAMCO ||
-            ins->type==DIV_INS_SM8521) {
+            ins->type==DIV_INS_SM8521 ||
+            (ins->type==DIV_INS_KURUMITSU && !ins->amiga.useSample)) {
           if (ImGui::BeginTabItem("Wavetable")) {
             switch (ins->type) {
               case DIV_INS_GB:
@@ -6487,6 +6489,7 @@ void FurnaceGUI::drawInsEdit() {
                 wavePreviewHeight=63;
                 break;
               case DIV_INS_SCC:
+              case DIV_INS_KURUMITSU:
                 wavePreviewLen=32;
                 wavePreviewHeight=255;
                 break;
@@ -6730,7 +6733,9 @@ void FurnaceGUI::drawInsEdit() {
           if (ins->type==DIV_INS_PCE || ins->type==DIV_INS_AY8930 || ins->type==DIV_INS_SM8521) {
             volMax=31;
           }
-          if (ins->type==DIV_INS_OPL || ins->type==DIV_INS_OPL_DRUMS || ins->type==DIV_INS_VERA || ins->type==DIV_INS_VRC6_SAW || ins->type==DIV_INS_ESFM || ins->type==DIV_INS_DAVE) {
+          if (ins->type==DIV_INS_OPL || ins->type==DIV_INS_OPL_DRUMS || ins->type==DIV_INS_VERA ||
+              ins->type==DIV_INS_VRC6_SAW || ins->type==DIV_INS_ESFM || ins->type==DIV_INS_DAVE ||
+              ins->type==DIV_INS_KURUMITSU) {
             volMax=63;
           }
           if (ins->type==DIV_INS_AMIGA) {
@@ -6844,7 +6849,7 @@ void FurnaceGUI::drawInsEdit() {
             dutyLabel="Noise";
             dutyMax=(!ins->amiga.useSample)?1:0;
           }
-          if (ins->type==DIV_INS_NAMCO) {
+          if (ins->type==DIV_INS_NAMCO || ins->type==DIV_INS_KURUMITSU) {
             dutyLabel="Noise";
             dutyMax=1;
           }
@@ -7056,7 +7061,8 @@ void FurnaceGUI::drawInsEdit() {
           }
           if (ins->type==DIV_INS_X1_010 || ins->type==DIV_INS_PCE || ins->type==DIV_INS_MIKEY ||
               ins->type==DIV_INS_SAA1099 || ins->type==DIV_INS_NAMCO || ins->type==DIV_INS_RF5C68 ||
-              ins->type==DIV_INS_VBOY || ins->type==DIV_INS_T6W28 || ins->type==DIV_INS_K007232) {
+              ins->type==DIV_INS_VBOY || ins->type==DIV_INS_T6W28 || ins->type==DIV_INS_K007232 ||
+              ins->type==DIV_INS_KURUMITSU) {
             panMax=15;
           }
           if (ins->type==DIV_INS_SEGAPCM) {
@@ -7201,7 +7207,8 @@ void FurnaceGUI::drawInsEdit() {
               ins->type==DIV_INS_ESFM ||
               ins->type==DIV_INS_POWERNOISE ||
               ins->type==DIV_INS_POWERNOISE_SLOPE ||
-              ins->type==DIV_INS_DAVE) {
+              ins->type==DIV_INS_DAVE ||
+              ins->type==DIV_INS_KURUMITSU) {
             macroList.push_back(FurnaceGUIMacroDesc("Phase Reset",&ins->std.phaseResetMacro,0,1,32,uiColors[GUI_COLOR_MACRO_OTHER],false,NULL,NULL,true));
           }
           if (ex1Max>0) {
@@ -7332,7 +7339,8 @@ void FurnaceGUI::drawInsEdit() {
             ins->type==DIV_INS_PCE ||
             ins->type==DIV_INS_X1_010 ||
             ins->type==DIV_INS_SWAN ||
-            ins->type==DIV_INS_VRC6) {
+            ins->type==DIV_INS_VRC6 ||
+            ins->type==DIV_INS_KURUMITSU) {
           insTabSample(ins);
         }
         if (ins->type>=DIV_INS_MAX) {

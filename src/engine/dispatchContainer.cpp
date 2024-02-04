@@ -81,6 +81,7 @@
 #include "platform/k053260.h"
 #include "platform/ted.h"
 #include "platform/c140.h"
+#include "platform/kurumitsu.h"
 #include "platform/pcmdac.h"
 #include "platform/esfm.h"
 #include "platform/powernoise.h"
@@ -655,6 +656,9 @@ void DivDispatchContainer::init(DivSystem sys, DivEngine* eng, int chanCount, do
       break;
     case DIV_SYSTEM_DAVE:
       dispatch=new DivPlatformDave;
+      break;
+    case DIV_SYSTEM_KURUMITSU:
+      dispatch=new DivPlatformKurumitsu;
       break;
     case DIV_SYSTEM_DUMMY:
       dispatch=new DivPlatformDummy;
