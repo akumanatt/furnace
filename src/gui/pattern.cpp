@@ -1273,6 +1273,7 @@ void FurnaceGUI::drawPattern() {
         if (!isPaired) continue;
 
         float posY=chanHeadBottom;
+        ImU32 patternPairColor=ImGui::GetColorU32(uiColors[GUI_COLOR_PATTERN_PAIR]);
 
         // find a free floor
         while (curFloor<4) {
@@ -1311,8 +1312,15 @@ void FurnaceGUI::drawPattern() {
         tdl->AddLine(
           ImVec2(pos,chanHeadBottom),
           ImVec2(pos,posY+textSize.y),
-          ImGui::GetColorU32(uiColors[GUI_COLOR_PATTERN_PAIR]),
+          patternPairColor,
           2.0f*dpiScale
+        );
+
+        tdl->AddTriangleFilled(
+          ImVec2(pos,chanHeadBottom),
+          ImVec2(pos-4*dpiScale,chanHeadBottom+8*dpiScale),
+          ImVec2(pos+4*dpiScale,chanHeadBottom+8*dpiScale),
+          patternPairColor
         );
 
         for (int j=0; j<8; j++) {
@@ -1323,6 +1331,7 @@ void FurnaceGUI::drawPattern() {
           }
 
           pos=(patChanX[pairCh+1]+patChanX[pairCh])*0.5;
+          pos+=pairCh<=i?8:-8;
           posCenter+=pos;
           numPairs++;
           if (pos<posMin) posMin=pos;
@@ -1330,7 +1339,7 @@ void FurnaceGUI::drawPattern() {
           tdl->AddLine(
             ImVec2(pos,chanHeadBottom),
             ImVec2(pos,posY+textSize.y),
-            ImGui::GetColorU32(uiColors[GUI_COLOR_PATTERN_PAIR]),
+            patternPairColor,
             2.0f*dpiScale
           );
         }
@@ -1341,20 +1350,20 @@ void FurnaceGUI::drawPattern() {
           tdl->AddLine(
             ImVec2(posMin,posY+textSize.y),
             ImVec2(posMax,posY+textSize.y),
-            ImGui::GetColorU32(uiColors[GUI_COLOR_PATTERN_PAIR]),
+            patternPairColor,
             2.0f*dpiScale
           );
         } else {
           tdl->AddLine(
             ImVec2(posMin,posY+textSize.y),
             ImVec2(posCenter-textSize.x*0.5-6.0f*dpiScale,posY+textSize.y),
-            ImGui::GetColorU32(uiColors[GUI_COLOR_PATTERN_PAIR]),
+            patternPairColor,
             2.0f*dpiScale
           );
           tdl->AddLine(
             ImVec2(posCenter+textSize.x*0.5+6.0f*dpiScale,posY+textSize.y),
             ImVec2(posMax,posY+textSize.y),
-            ImGui::GetColorU32(uiColors[GUI_COLOR_PATTERN_PAIR]),
+            patternPairColor,
             2.0f*dpiScale
           );
 
