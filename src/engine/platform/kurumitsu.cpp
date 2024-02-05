@@ -86,11 +86,11 @@ void DivPlatformKurumitsu::acquire(short** buf, size_t len) {
       int vol_modded=volTab[vol&0x3f];
       unsigned phase_modded=phase;
       if (mod1) {
-        if (mod&0x08) vol_modded+=emu.lastData>>(7-mod1);
+        if (mod&0x08) vol_modded+=emu.lastData>>(11-mod1);
         else phase_modded+=emu.lastData<<mod1;
       }
       if (mod2) {
-        if (mod&0x80) vol_modded+=emu.lastData2>>(7-mod2);
+        if (mod&0x80) vol_modded+=emu.lastData2>>(11-mod2);
         else phase_modded+=emu.lastData2<<mod2;
       }
       vol_modded=CLAMP(vol_modded,0,255);
