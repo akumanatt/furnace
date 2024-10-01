@@ -1757,6 +1757,7 @@ bool FurnaceGUI::drawSysConf(int chan, int sysPos, DivSystem type, DivConfig& fl
     case DIV_SYSTEM_Y8950:
     case DIV_SYSTEM_Y8950_DRUMS: {
       int clockSel=flags.getInt("clockSel",0);
+      bool compatYPitch=flags.getBool("compatYPitch",false);
 
       ImGui::Text(_("Clock rate:"));
       ImGui::Indent();
@@ -1786,9 +1787,16 @@ bool FurnaceGUI::drawSysConf(int chan, int sysPos, DivSystem type, DivConfig& fl
       }
       ImGui::Unindent();
 
+      if ((type==DIV_SYSTEM_Y8950 || type==DIV_SYSTEM_Y8950_DRUMS) && compatYPitch) {
+        if (ImGui::Checkbox(_("ADPCM channel one octave up (compatibility)"),&compatYPitch)) {
+          altered=true;
+        }
+      }
+
       if (altered) {
         e->lockSave([&]() {
           flags.set("clockSel",clockSel);
+          flags.set("compatYPitch",compatYPitch);
         });
       }
       break;
@@ -2619,6 +2627,28 @@ bool FurnaceGUI::drawSysConf(int chan, int sysPos, DivSystem type, DivConfig& fl
       supportsCustomRate=false;
       ImGui::Text(_("nothing to configure"));
       break;
+    case DIV_SYSTEM_SID3: {
+      bool quarterClock=flags.getBool("quarterClock",false);
+      if (ImGui::Checkbox(_("Quarter clock speed"),&quarterClock)) {
+        altered=true;
+      }
+      if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip(_("Decreases clock speed and CPU audio load by 4 times.\nCan be used if your CPU is too slow for the chip."
+        "\nDoes not affect clock speed during export!\n\n"
+
+        "Warning! Filters may become unstable at high cutoff and resonance\nif this option or lower clock speed are used!\n"
+        "Also filters' timbre may be different near these values.\n\n"
+
+        "Default clock speed is 1MHz (1000000Hz)."));
+      }
+
+      if (altered) {
+        e->lockSave([&]() {
+          flags.set("quarterClock",(int)quarterClock);
+        });
+      }
+      break;
+    }
     default: {
       bool sysPal=flags.getInt("clockSel",0);
 

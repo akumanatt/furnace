@@ -1498,13 +1498,24 @@ void FurnaceGUI::keyDown(SDL_Event& ev) {
         case SDLK_LGUI: case SDLK_RGUI:
         case SDLK_LSHIFT: case SDLK_RSHIFT:
           bindSetPending=false;
-          actionKeys[bindSetTarget]=(mapped&(~FURK_MASK))|0xffffff;
+          actionKeys[bindSetTarget][bindSetTargetIdx]=(mapped&(~FURK_MASK))|0xffffff;
           break;
         default:
-          actionKeys[bindSetTarget]=mapped;
+          actionKeys[bindSetTarget][bindSetTargetIdx]=mapped;
+
+          // de-dupe with an n^2 algorithm that will never ever be a problem (...but for real though)
+          for (size_t i=0; i<actionKeys[bindSetTarget].size(); i++) {
+            for (size_t j=i+1; j<actionKeys[bindSetTarget].size(); j++) {
+              if (actionKeys[bindSetTarget][i]==actionKeys[bindSetTarget][j]) {
+                actionKeys[bindSetTarget].erase(actionKeys[bindSetTarget].begin()+j);
+              }
+            }
+          }
+
           bindSetActive=false;
           bindSetPending=false;
           bindSetTarget=0;
+          bindSetTargetIdx=0;
           bindSetPrevValue=0;
           parseKeybinds();
           break;
@@ -2460,6 +2471,20 @@ int FurnaceGUI::load(String path) {
     // warn the user
     showWarning(_("you have loaded a backup!\nif you need to, please save it somewhere.\n\nDO NOT RELY ON THE BACKUP SYSTEM FOR AUTO-SAVE!\nFurnace will not save backups of backups."),GUI_WARN_GENERIC);
   }
+
+  // if this is a PC module import, warn the user on the first import.
+  if (!tutorial.importedMOD && e->song.version==DIV_VERSION_MOD) {
+    showWarning(_("you have imported a ProTracker/SoundTracker/PC module!\nkeep the following in mind:\n\n- Furnace is not a replacement for your MOD player\n- import is not perfect. your song may sound different:\n  - E6x pattern loop is not supported\n\nhave fun!"),GUI_WARN_IMPORT);
+  }
+  if (!tutorial.importedS3M && e->song.version==DIV_VERSION_S3M) {
+    showWarning(_("you have imported a Scream Tracker 3 module!\nkeep the following in mind:\n\n- Furnace is not a replacement for your S3M player\n- import is not perfect. your song may sound different:\n  - OPL instruments may be detuned\n\nhave fun!"),GUI_WARN_IMPORT);
+  }
+  if (!tutorial.importedXM && e->song.version==DIV_VERSION_XM) {
+    showWarning(_("you have imported a FastTracker II module!\nkeep the following in mind:\n\n- Furnace is not a replacement for your XM player\n- import is not perfect. your song may sound different:\n  - envelopes have been converted to macros\n  - global volume changes are not supported\n\nhave fun!"),GUI_WARN_IMPORT);
+  }
+  if (!tutorial.importedIT && e->song.version==DIV_VERSION_IT) {
+    showWarning(_("you have imported an Impulse Tracker module!\nkeep the following in mind:\n\n- Furnace is not a replacement for your IT player\n- import is not perfect. your song may sound different:\n  - envelopes have been converted to macros\n  - global volume changes are not supported\n  - channel volume changes are not supported\n  - New Note Actions (NNA) are not supported\n\nhave fun!"),GUI_WARN_IMPORT);
+  }
   return 0;
 }
 
@@ -2828,24 +2853,6 @@ void FurnaceGUI::processDrags(int dragX, int dragY) {
   } \
   if (lowerCase.size()<strlen(x) || lowerCase.rfind(x)!=lowerCase.size()-strlen(x)) { \
     fileName+=x; \
-  }
-
-#define checkExtensionDual(x,y,fallback) \
-  String lowerCase=fileName; \
-  for (char& i: lowerCase) { \
-    if (i>='A' && i<='Z') i+='a'-'A'; \
-  } \
-  if (lowerCase.size()<4 || (lowerCase.rfind(x)!=lowerCase.size()-4 && lowerCase.rfind(y)!=lowerCase.size()-4)) { \
-    fileName+=fallback; \
-  }
-
-#define checkExtensionTriple(x,y,z,fallback) \
-  String lowerCase=fileName; \
-  for (char& i: lowerCase) { \
-    if (i>='A' && i<='Z') i+='a'-'A'; \
-  } \
-  if (lowerCase.size()<4 || (lowerCase.rfind(x)!=lowerCase.size()-4 && lowerCase.rfind(y)!=lowerCase.size()-4 && lowerCase.rfind(z)!=lowerCase.size()-4)) { \
-    fileName+=fallback; \
   }
 
 #define drawOpMask(m) \
@@ -3528,8 +3535,12 @@ void FurnaceGUI::pointDown(int x, int y, int button) {
   if (bindSetActive) {
     bindSetActive=false;
     bindSetPending=false;
-    actionKeys[bindSetTarget]=bindSetPrevValue;
+    actionKeys[bindSetTarget][bindSetTargetIdx]=bindSetPrevValue;
+    if (bindSetTargetIdx==(int)actionKeys[bindSetTarget].size()-1 && bindSetPrevValue<=0) {
+      actionKeys[bindSetTarget].pop_back();
+    }
     bindSetTarget=0;
+    bindSetTargetIdx=0;
     bindSetPrevValue=0;
   }
   if (introPos<11.0 && !shortIntro) {
@@ -5117,7 +5128,13 @@ bool FurnaceGUI::loop() {
         } else {
           fileName=fileDialog->getFileName()[0];
         }
+#ifdef FLATPAK_WORKAROUNDS
+        // https://github.com/tildearrow/furnace/issues/2096
+        // Flatpak Portals mangling our path hinders us from adding extension
+        if (fileName!="" && !settings.sysFileDialog) {
+#else
         if (fileName!="") {
+#endif
           if (curFileDialog==GUI_FILE_SAVE) {
             checkExtension(".fur");
           }
@@ -6461,6 +6478,26 @@ bool FurnaceGUI::loop() {
           popDestColor();
           ImGui::SameLine();
           if (ImGui::Button(_("No"))) {
+            ImGui::CloseCurrentPopup();
+          }
+          break;
+        case GUI_WARN_IMPORT:
+          if (ImGui::Button(_("Got it"))) {
+            switch (e->song.version) {
+              case DIV_VERSION_MOD:
+                tutorial.importedMOD=true;
+                break;
+              case DIV_VERSION_S3M:
+                tutorial.importedS3M=true;
+                break;
+              case DIV_VERSION_XM:
+                tutorial.importedXM=true;
+                break;
+              case DIV_VERSION_IT:
+                tutorial.importedIT=true;
+                break;
+            }
+            commitTutorial();
             ImGui::CloseCurrentPopup();
           }
           break;
@@ -8632,6 +8669,7 @@ FurnaceGUI::FurnaceGUI():
   waveDragMax(0),
   waveDragActive(false),
   bindSetTarget(0),
+  bindSetTargetIdx(0),
   bindSetPrevValue(0),
   bindSetActive(false),
   bindSetPending(false),
@@ -8858,8 +8896,6 @@ FurnaceGUI::FurnaceGUI():
   opMaskTransposeValue.vol=true;
   opMaskTransposeValue.effect=false;
   opMaskTransposeValue.effectVal=true;
-
-  memset(actionKeys,0,GUI_ACTION_MAX*sizeof(int));
 
   memset(patChanX,0,sizeof(float)*(DIV_MAX_CHANS+1));
   memset(patChanSlideY,0,sizeof(float)*(DIV_MAX_CHANS+1));

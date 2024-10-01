@@ -115,6 +115,7 @@ class DivPlatformOPL: public DivDispatch {
     bool lastSY;
     bool waitingBusy;
     int downsamplerStep;
+    unsigned char oldOpMask;
     
     unsigned char* adpcmBMem;
     size_t adpcmBMemLen;
@@ -150,7 +151,7 @@ class DivPlatformOPL: public DivDispatch {
     // 2: YM3812-LLE/YMF262-LLE
     unsigned char emuCore;
 
-    bool update4OpMask, pretendYMU, downsample, compatPan;
+    bool update4OpMask, pretendYMU, downsample, compatPan, compatYPitch;
   
     short oldWrites[768];
     short pendingWrites[768];
@@ -191,7 +192,7 @@ class DivPlatformOPL: public DivDispatch {
     void* getChanState(int chan);
     DivMacroInt* getChanMacroInt(int ch);
     unsigned short getPan(int chan);
-    DivChannelPair getPaired(int chan);
+    void getPaired(int ch, std::vector<DivChannelPair>& ret);
     DivDispatchOscBuffer* getOscBuffer(int chan);
     int mapVelocity(int ch, float vel);
     float getGain(int ch, int vol);

@@ -671,6 +671,7 @@ class DivEngine {
   // add every export method here
   friend class DivROMExport;
   friend class DivExportAmigaValidation;
+  friend class DivExportSAPR;
   friend class DivExportTiuna;
   friend class DivExportZSM;
 
@@ -1151,7 +1152,7 @@ class DivEngine {
     void* getDispatchChanState(int chan);
 
     // get channel pairs
-    DivChannelPair getChanPaired(int chan);
+    void getChanPaired(int chan, std::vector<DivChannelPair>& ret);
 
     // get channel mode hints
     DivChannelModeHints getChanModeHints(int chan);
