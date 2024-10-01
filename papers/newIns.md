@@ -192,7 +192,7 @@ size | description
   1  | |x| ALG |x| FB  |
   1  | |FMS2 |AMS| FMS |
   1  | |AM2|4| LLPatch |
-  1  | |xxxxxxx| Block | (>=222)
+  1  | |xxxxxxx| Block | (>=224)
 -----|------------------------------------
      | **operator data × opCount**
      | /7 6 5 4 3 2 1 0|
@@ -338,7 +338,7 @@ size | description
      | - bit 0-10: cutoff (0-11 on SID2)
   1  | upper nibble of resonance (for SID2) (>=199)
      | - bits 0-3 hold this upper nibble
-     | - bit 4: reset duty on new note (>=222)
+     | - bit 4: reset duty on new note (>=224)
 ```
 
 ## C64 compatibility note (>=187)

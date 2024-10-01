@@ -1740,7 +1740,7 @@ void DivInstrument::readFeatureFM(SafeReader& reader, short version) {
   fm.ops=(next&32)?4:2;
   fm.opllPreset=next&31;
 
-  if (version>=222) {
+  if (version>=224) {
     next=reader.readC();
     fm.block=next&15;
   }

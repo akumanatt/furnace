@@ -74,4 +74,18 @@ void DivEngine::registerROMExports() {
     },
     false, DIV_REQPOL_EXACT
   );
+  
+  romExportDefs[DIV_ROM_XGM]=new DivROMExportDef(
+    "XGM", "Stephane Dallongeville",
+    "eXtended Genesis Music, for use with SGDK.\n"
+    "see https://github.com/Stephane-D/SGDK for code.",
+    "XGM file", ".xgm",
+    {
+      DIV_SYSTEM_YM2612,
+      DIV_SYSTEM_YM2612_EXT,
+      DIV_SYSTEM_YM2612_CSM,
+      DIV_SYSTEM_SMS
+    },
+    false, DIV_REQPOL_LAX
+  );
 }
