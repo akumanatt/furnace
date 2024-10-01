@@ -673,6 +673,7 @@ class DivEngine {
   friend class DivExportAmigaValidation;
   friend class DivExportSAPR;
   friend class DivExportTiuna;
+  friend class DivExportXGM;
   friend class DivExportZSM;
 
   public:

@@ -319,6 +319,72 @@ void FurnaceGUI::drawExportROM(bool onWindow) {
       }
       break;
     }
+    case DIV_ROM_XGM: {
+      bool secret=romConfig.getBool("secret",false);
+      bool loop=romConfig.getBool("loop",false);
+      int trailingTicks=romConfig.getInt("trailingTicks",-1);
+      int sysToExportFM=romConfig.getInt("sysToExportFM",-1);
+      int sysToExportPSG=romConfig.getInt("sysToExportPSG",-1);
+
+      if (ImGui::Checkbox(_("secret!"),&secret)) {
+        altered=true;
+      }
+      if (ImGui::Checkbox(_("loop"),&loop)) {
+        altered=true;
+      }
+      if (loop && e->song.loopModality==2) {
+        ImGui::Text(_("loop trail:"));
+        ImGui::Indent();
+        if (ImGui::RadioButton(_("auto-detect"),trailingTicks==-1)) {
+          trailingTicks=-1;
+          altered=true;
+        }
+        if (ImGui::RadioButton(_("add one loop"),trailingTicks==-2)) {
+          trailingTicks=-2;
+          altered=true;
+        }
+        if (ImGui::RadioButton(_("custom"),trailingTicks>=0)) {
+          trailingTicks=0;
+          altered=true;
+        }
+        if (trailingTicks>=0) {
+          ImGui::SameLine();
+          if (ImGui::InputInt("##TrailTicks",&trailingTicks,1,100)) {
+            if (trailingTicks<0) trailingTicks=0;
+            altered=true;
+          }
+        }
+        ImGui::Unindent();
+      }
+      
+      bool toExport[DIV_MAX_CHIPS];
+      memset(toExport,0,sizeof(toExport));
+      if (sysToExportFM>=0) toExport[sysToExportFM]=true;
+      if (sysToExportPSG>=0) toExport[sysToExportPSG]=true;
+      ImGui::Text(_("chips to export:"));
+      for (int i=0; i<e->song.systemLen; i++) {
+        DivSystem sys=e->song.system[i];
+        bool isFM=sys==DIV_SYSTEM_YM2612 || sys==DIV_SYSTEM_YM2612_EXT || sys==DIV_SYSTEM_YM2612_CSM;
+        bool isPSG=sys==DIV_SYSTEM_SMS;
+        ImGui::BeginDisabled(!isFM && !isPSG);
+        if (ImGui::Checkbox(fmt::sprintf("%d. %s##_SYSV%d",i+1,getSystemName(e->song.system[i]),i).c_str(),&toExport[i])) {
+          if (isFM) sysToExportFM=toExport[i]?i:-1;
+          if (isPSG) sysToExportPSG=toExport[i]?i:-1;
+          altered=true;
+        }
+        ImGui::EndDisabled();
+        if (sysToExportFM==i && !isFM) sysToExportFM=-1;
+        if (sysToExportPSG==i && !isPSG) sysToExportPSG=-1;
+      }
+      if (altered) {
+        romConfig.set("secret",secret);
+        romConfig.set("loop",loop);
+        romConfig.set("trailingTicks",trailingTicks);
+        romConfig.set("sysToExportFM",sysToExportFM);
+        romConfig.set("sysToExportPSG",sysToExportPSG);
+      }
+      break;
+    }
     case DIV_ROM_ZSM: {
       int zsmExportTickRate=romConfig.getInt("zsmrate",60);
       bool zsmExportLoop=romConfig.getBool("loop",true);
